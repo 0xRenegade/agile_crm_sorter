@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+contacts.json
+hard_bounces.json

@@ -2,23 +2,24 @@ require('dotenv').config()
 const fs = require('fs')
 const AgileCRMManager = require("./agilecrm.js")
 const obj = new AgileCRMManager(process.env.DOMAIN, process.env.API_KEY, process.env.EMAIL)
-const convert = require('json-2-csv');
+const convert = require('json-2-csv')
 let arr = []
-let error
+let object = {}
 
-obj.contactAPI.getContactsByPropertyFilter('Clicked Newsletter', 'True', success, error)
+const success = (dataArr) => {
+  // console.log(dataArr)
+  for (const data of dataArr) {
 
-const success = (data) => {
-  arr.push(data)
-  error = false
-}
+    object['First Name'] = data.properties[0]['value']
+    object['Last Name'] = data.properties[1]['value']
+    object['Email'] = data.properties[2]['value']
+    object['Title'] = data.properties[3]['value']
+    object['Phone'] = data.properties[4]['value']
 
-const error = (data) => {
-  console.error(data)
-  error = true
-}
+    arr.push(object)
+    object = {}
+  }
 
-if (!error) {
   convert.json2csv(arr, (err, csv) => {
     if (err) {
       throw err;
@@ -26,3 +27,9 @@ if (!error) {
     fs.writeFileSync('clicked-newsletter.csv', csv)
   })
 }
+
+const error = (data) => {
+  console.error(data)
+}
+
+obj.contactAPI.getContactsByPropertyFilter('Clicked Newsletter', 'True', success, error)
